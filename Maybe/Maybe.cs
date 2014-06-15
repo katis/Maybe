@@ -33,6 +33,24 @@ namespace Katis.Data
         {
             return Maybe.Create(value);
         }
+
+        public static Maybe<T> GetMaybe<T>(this IList<T> list, int index)
+        {
+            if (index < 0 || index > list.Count - 1) return Maybe.None<T>();
+            return Maybe.Create(list[index]);
+        }
+
+        public static Maybe<T> GetMaybe<T>(this T[] list, int index)
+        {
+            if (index < 0 || index > list.Length - 1) return Maybe.None<T>();
+            return Maybe.Create(list[index]);
+        }
+
+        public static Maybe<V> GetMaybe<K, V>(this IDictionary<K, V> map, K index)
+        {
+            if (map.ContainsKey(index)) return Maybe.Create(map[index]);
+            else return Maybe.None<V>();
+        }
     }
 
     public struct Maybe<T> : IEnumerable<T>

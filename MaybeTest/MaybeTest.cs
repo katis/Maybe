@@ -169,6 +169,49 @@ namespace Katis.Data.MaybeTest
         }
 
         [TestMethod]
+        public void TestGetMaybeList()
+        {
+            var list = new List<int>();
+            list.Add(1);
+            list.Add(2);
+            var two = list.GetMaybe(1).GetOrElse(0);
+            Assert.AreEqual(2, two, "GetMaybe should get the second item in list");
+
+            var zero = list.GetMaybe(2).GetOrElse(0);
+            Assert.AreEqual(0, zero, "GetMaybe should return none if the index is not in the list");
+
+            var zero2 = list.GetMaybe(-1).GetOrElse(0);
+            Assert.AreEqual(0, zero, "GetMaybe should return none if the index is not in the list");
+        }
+
+        [TestMethod]
+        public void TestGetMaybeArray()
+        {
+            var array = new int[] { 1, 2 };
+            var two = array.GetMaybe(1).GetOrElse(0);
+            Assert.AreEqual(2, two, "GetMaybe should get the second item in list");
+
+            var zero = array.GetMaybe(2).GetOrElse(0);
+            Assert.AreEqual(0, zero, "GetMaybe should return none if the index is not in the list");
+
+            var zero2 = array.GetMaybe(-1).GetOrElse(0);
+            Assert.AreEqual(0, zero, "GetMaybe should return none if the index is not in the list");
+        }
+
+        [TestMethod]
+        public void TestGetMaybeDictionary()
+        {
+            var hash = new Dictionary<string, int>();
+            hash.Add("one", 1);
+            hash.Add("two", 2);
+            var two = hash.GetMaybe("two").GetOrElse(0);
+            Assert.AreEqual(2, two, "GetMaybe should get the second item in list");
+
+            var zero = hash.GetMaybe("three").GetOrElse(0);
+            Assert.AreEqual(0, zero, "GetMaybe should return none if the index is not in the list");
+        }
+
+        [TestMethod]
         public void TestToArray()
         {
             var someArr = Maybe.Create(10).ToArray();
