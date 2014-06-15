@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maybe", "Maybe\Maybe.csproj", "{6B958169-7173-4070-BADD-3A6C20F429DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaybeTest", "MaybeTest\MaybeTest.csproj", "{CF9CC309-27FB-4A15-984E-B4C079D9C306}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3522083F-01F6-4155-9565-D99668E8733D}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE.md = LICENSE.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6B958169-7173-4070-BADD-3A6C20F429DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B958169-7173-4070-BADD-3A6C20F429DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B958169-7173-4070-BADD-3A6C20F429DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B958169-7173-4070-BADD-3A6C20F429DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF9CC309-27FB-4A15-984E-B4C079D9C306}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF9CC309-27FB-4A15-984E-B4C079D9C306}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF9CC309-27FB-4A15-984E-B4C079D9C306}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF9CC309-27FB-4A15-984E-B4C079D9C306}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
