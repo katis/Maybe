@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Katis.Data;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Katis.Data.MaybeTest
 {
@@ -22,8 +22,8 @@ namespace Katis.Data.MaybeTest
         public void TestOrElse()
         {
             var greeting = "Hello ";
-            var world = Maybe.Create("world!");
-            var meatbags = Maybe.Create("meatbags.");
+            var world = Maybe.Some("world!");
+            var meatbags = Maybe.Some("meatbags.");
 
             var message = greeting + world.OrElse(meatbags).GetOrElse("Clarice.");
 
@@ -42,14 +42,14 @@ namespace Katis.Data.MaybeTest
         [TestMethod]
         public void TestForEach()
         {
-            var none = Maybe.Create((object) null);
+            var none = Maybe.Some((object) null);
 
             var i = 0;
             none.ForEach(l => i += 1);
             Assert.AreEqual(0, i, "Empty May should not run ForEach callback");
 
             var j = 0;
-            var some = Maybe.Create(2);
+            var some = Maybe.Some(2);
             some.ForEach(n => j += n);
             Assert.AreEqual(2, j, "May with value should run ForEach callback once");
         }
@@ -57,7 +57,7 @@ namespace Katis.Data.MaybeTest
         [TestMethod]
         public void TestMap()
         {
-            var some = Maybe.Create(0);
+            var some = Maybe.Some(0);
             var one = some.Map(v => v + 1).GetOrElse(0);
             Assert.AreEqual(1, one, "Map should return new value for some");
 
@@ -69,11 +69,11 @@ namespace Katis.Data.MaybeTest
         [TestMethod]
         public void TestFlatMap()
         {
-            var janeDoe = Maybe.Create(new {
+            var janeDoe = Maybe.Some(new {
                 Name = "Jane Doe",
-                Partner = Maybe.Create(new {
+                Partner = Maybe.Some(new {
                     Name = "John Doe",
-                    Job = Maybe.Create("Gardener"),
+                    Job = Maybe.Some("Gardener"),
                     Pet = Maybe.None<string>()
                 })
             });
@@ -95,7 +95,7 @@ namespace Katis.Data.MaybeTest
         [TestMethod]
         public void TestFilter()
         {
-            var some = Maybe.Create("hello");
+            var some = Maybe.Some("hello");
             var hello = some.Filter(s => s == "hello").GetOrElse("");
 
             Assert.AreEqual("hello", hello, "Filter should not filter the value in some");
@@ -104,10 +104,49 @@ namespace Katis.Data.MaybeTest
             Assert.AreEqual("", notHello, "Filter should filter out the \"hello\" in some");
         }
 
+
+        [TestMethod]
+        public void TestLinq()
+        {
+            var jill = Maybe.Some(new {Name = "Jill", Partner = Maybe.Some("Jack")});
+            var john = Maybe.Some(new {Name = "John", Partner = Maybe.None<string>()});
+
+            var result = from i in jill
+                      from o in john
+                      select new { Girl = i.Name , Boy = o.Name };
+
+            var girl = "";
+            var boy = "";
+            foreach (var item in result)
+            {
+                girl = item.Girl;
+                boy = item.Boy;
+            }
+
+            Assert.AreEqual("Jill", girl, "the Linq query should produce both peoples names");
+            Assert.AreEqual("John", boy, "the Linq query should produce both peoples names");
+
+            var result2 = from i in jill
+                          from p1 in i.Partner
+                          from j in john
+                          from p2 in j.Partner
+                          select new { JillPartner = p1, JohnPartner = p2 };
+
+            var jillPartner = "";
+            var johnPartner = "";
+            foreach (var item2 in result2) {
+                jillPartner = item2.JillPartner;
+                johnPartner = item2.JohnPartner;
+            }
+
+            Assert.AreEqual("", jillPartner, "the Linq query should not produce a value.");
+            Assert.AreEqual("", johnPartner, "the Linq query should not produce a value.");
+        }
+
         [TestMethod]
         public void TestMatch()
         {
-            var some = Maybe.Create("Hello");
+            var some = Maybe.Some("Hello");
             var greeting = some.Match(
                 v => v + " world!",
                 () => "'ola"
@@ -128,7 +167,7 @@ namespace Katis.Data.MaybeTest
         public void TestMatchAct()
         {
             var greeting = "Hello ";
-            var some = Maybe.Create("world!");
+            var some = Maybe.Some("world!");
             some.MatchAct(
                 v => greeting += v,
                 () => greeting += "meatbag."
@@ -150,10 +189,10 @@ namespace Katis.Data.MaybeTest
         [ExpectedException(typeof(IndexOutOfRangeException))]
         public void TestGetOrElseThrow()
         {
-            var some = Maybe.Create("hello");
+            var some = Maybe.Some("hello");
             some.GetOrThrow(new Exception());
 
-            var none = Maybe.Create((string)null);
+            var none = Maybe.Some((string)null);
             none.GetOrThrow(new IndexOutOfRangeException());
         }
 
@@ -161,10 +200,10 @@ namespace Katis.Data.MaybeTest
         [ExpectedException(typeof(IndexOutOfRangeException))]
         public void TestGetOrElseThrowLambda()
         {
-            var some = Maybe.Create("hello");
+            var some = Maybe.Some("hello");
             some.GetOrThrow(() => new Exception());
 
-            var none = Maybe.Create((string)null);
+            var none = Maybe.Some((string)null);
             var s = none.GetOrThrow(() => new IndexOutOfRangeException());
         }
 
@@ -214,7 +253,7 @@ namespace Katis.Data.MaybeTest
         [TestMethod]
         public void TestToArray()
         {
-            var someArr = Maybe.Create(10).ToArray();
+            var someArr = Maybe.Some(10).ToArray();
             Assert.AreEqual(1, someArr.Length, "ToArray of some should return a array with a length of 1");
             Assert.AreEqual(10, someArr[0], "ToArray of some should contain the value 10");
 
@@ -225,7 +264,7 @@ namespace Katis.Data.MaybeTest
         [TestMethod]
         public void TestToList()
         {
-            var someArr = Maybe.Create(10).ToList();
+            var someArr = Maybe.Some(10).ToList();
             Assert.AreEqual(1, someArr.Count, "ToArray of some should return a array with a length of 1");
             Assert.AreEqual(10, someArr[0], "ToArray of some should contain the value 10");
 
@@ -236,7 +275,7 @@ namespace Katis.Data.MaybeTest
         [TestMethod]
         public void TestEnumerator()
         {
-            var some = Maybe.Create(1);
+            var some = Maybe.Some(1);
             var i = 0;
             foreach (var n in some)
             {
