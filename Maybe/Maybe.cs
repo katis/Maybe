@@ -270,5 +270,18 @@ namespace Katis.Data
                 yield return v.Value;
             }
         }
+
+        /// <summary>
+        /// Returns a string representation of the potentially contained value.
+        /// </summary>
+        public override string ToString()
+        {
+            if (v == null)
+            {
+                return "None";
+            } else {
+                return String.Format("Some({0})", v.Value.ToString());
+            }
+        }
     }
 }

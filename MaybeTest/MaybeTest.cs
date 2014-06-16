@@ -24,18 +24,14 @@ namespace Katis.Data.MaybeTest
             var greeting = "Hello ";
             var world = Maybe.Some("world!");
             var meatbags = Maybe.Some("meatbags.");
-
             var message = greeting + world.OrElse(meatbags).GetOrElse("Clarice.");
-
             Assert.AreEqual("Hello world!", message, "message should equal \"Hello world!\"");
 
             var none = Maybe.None<string>();
             var messageNone = greeting + none.OrElse(meatbags).GetOrElse("Clarice.");
-
             Assert.AreEqual("Hello meatbags.", messageNone, "messageNone should equal \"Hello meatbags.\"");
 
             var messageNoneNone = greeting + none.OrElse(Maybe.None<string>()).GetOrElse("Clarice.");
-
             Assert.AreEqual("Hello Clarice.", messageNoneNone, "messageNoneNone should equal \"Hello Clarice.\"");
         }
 
@@ -43,7 +39,6 @@ namespace Katis.Data.MaybeTest
         public void TestForEach()
         {
             var none = Maybe.Some((object) null);
-
             var i = 0;
             none.ForEach(l => i += 1);
             Assert.AreEqual(0, i, "Empty May should not run ForEach callback");
@@ -81,14 +76,12 @@ namespace Katis.Data.MaybeTest
                 .FlatMap(jane => jane.Partner)
                 .FlatMap(partner => partner.Job)
                 .GetOrElse("");
-
             Assert.AreEqual("Gardener", husbandsJob, "FlatMap should return the janeDoe.Partner.Job-field");
 
             var husbandsPet = janeDoe
                 .FlatMap(jane => jane.Partner)
                 .FlatMap(partner => partner.Pet)
                 .GetOrElse("");
-
             Assert.AreEqual("", husbandsPet, "FlatMap should return an empty string for janeDoe.Partner.Pet");
         }
 
@@ -97,7 +90,6 @@ namespace Katis.Data.MaybeTest
         {
             var some = Maybe.Some("hello");
             var hello = some.Filter(s => s == "hello").GetOrElse("");
-
             Assert.AreEqual("hello", hello, "Filter should not filter the value in some");
 
             var notHello = some.Filter(s => s != "hello").GetOrElse("");
@@ -151,7 +143,6 @@ namespace Katis.Data.MaybeTest
                 v => v + " world!",
                 () => "'ola"
             );
-
             Assert.AreEqual("Hello world!", greeting, "Match on some should have produced \"Hello world!\"");
 
             var none = Maybe.None<string>();
@@ -159,7 +150,6 @@ namespace Katis.Data.MaybeTest
                 v => v + " world!",
                 () => "'ola"
             );
-
             Assert.AreEqual("'ola", noneGreeting, "Match on none should have produced \"'ola\"");
         }
 
@@ -172,7 +162,6 @@ namespace Katis.Data.MaybeTest
                 v => greeting += v,
                 () => greeting += "meatbag."
             );
-
             Assert.AreEqual("Hello world!", greeting, "MatchAct on some should change greeting to \"Hello world!\"");
 
             var greetingNone = "Hello ";
@@ -181,7 +170,6 @@ namespace Katis.Data.MaybeTest
                 v => greetingNone += v,
                 () => greetingNone += "meatbag."
             ); 
-
             Assert.AreEqual("Hello meatbag.", greetingNone, "MatchAct on none should change greeting to \"Hello meatbag.\"");
         }
 
@@ -290,6 +278,16 @@ namespace Katis.Data.MaybeTest
                 j += n;
             }
             Assert.AreEqual(0, j, "Iterating over none should not do anything.");
+        }
+
+        [TestMethod]
+        public void TestToString()
+        {
+            var some = Maybe.Some(1);
+            Assert.AreEqual("Some(1)", some.ToString(), "ToString on some should return Some(1)");
+
+            var none = Maybe.None<string>();
+            Assert.AreEqual("None", none.ToString(), "ToString on none should return None");
         }
     }
 }
