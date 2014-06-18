@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Joni Katajamäki</authors>
+    <owners>Joni Katajamäki</owners>
+    <licenseUrl>https://github.com/katis/Maybe/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/katis/Maybe</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Implemented Maybe</releaseNotes>
+    <copyright>Copyright 2014</copyright>
+    <tags>maybe option monad null</tags>
+  </metadata>
+</package>
