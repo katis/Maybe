@@ -3,17 +3,6 @@ using System.Collections.Generic;
 
 namespace Katis.Data
 {
-    internal class Ref<T>
-    {
-        private readonly T v;
-        public T Value { get { return v; } }
-
-        public Ref(T v)
-        {
-            this.v = v;
-        }
-    }
-
     public static class Maybe
     {
         /// <summary>
@@ -92,7 +81,8 @@ namespace Katis.Data
     /// <typeparam name="T">Type of the value it potentially contains.</typeparam>
     public struct Maybe<T> : IEnumerable<T>
     {
-        private readonly Ref<T> v;
+        private readonly bool has;
+        private readonly T v;
 
         /// <summary>
         /// Implicit conversion to a maybe value.
@@ -109,13 +99,22 @@ namespace Katis.Data
         /// </summary>
         public Maybe(T value)
         {
-            v = (value == null) ? null : new Ref<T>(value);
+            if (value == null)
+            {
+                this.v = default(T);
+                has = false;
+            }
+            else
+            {
+                this.v = value;
+                has = true;
+            }
         }
 
         /// <summary>
         /// Does the Maybe contain a value.
         /// </summary>
-        public bool HasSome { get { return (v != null); } }
+        public bool HasSome { get { return has; } }
 
         /// <summary>
         /// Maps over the value contained in the Maybe producing a new Maybe value.
@@ -124,7 +123,7 @@ namespace Katis.Data
         /// <returns>Mapped over value in a Maybe, or empty.</returns>
         public Maybe<U> Map<U>(Func<T, U> converter)
         {
-            return (v == null) ? default(Maybe<U>) : new Maybe<U>(converter(v.Value));
+            return (!HasSome) ? default(Maybe<U>) : new Maybe<U>(converter(v));
         }
 
         /// <summary>
@@ -135,7 +134,7 @@ namespace Katis.Data
         /// <returns>New Maybe created by the converter, or empty.</returns>
         public Maybe<U> FlatMap<U>(Func<T, Maybe<U>> converter)
         {
-            return (v == null) ? default(Maybe<U>) : converter(v.Value);
+            return (!HasSome) ? default(Maybe<U>) : converter(v);
         }
 
         /// <summary>
@@ -146,7 +145,7 @@ namespace Katis.Data
         /// <returns>nextValue or empty.</returns>
         public Maybe<U> FlatMap<U>(Maybe<U> nextValue)
         {
-            return (v == null) ? default(Maybe<U>) : nextValue;
+            return (!HasSome) ? default(Maybe<U>) : nextValue;
         }
 
         /// <summary>
@@ -157,7 +156,7 @@ namespace Katis.Data
         /// <returns>Filtered Maybe</returns>
         public Maybe<T> Filter(Predicate<T> pred)
         {
-            return (v == null || !pred(v.Value)) ? default(Maybe<T>) : new Maybe<T>(v.Value);
+            return (!HasSome || !pred(v)) ? default(Maybe<T>) : new Maybe<T>(v);
         }
 
         /// <summary>
@@ -166,8 +165,8 @@ namespace Katis.Data
         /// <param name="action">Action called with the contained value.</param>
         public void ForEach(Action<T> action)
         {
-            if (v == null) return;
-            action(v.Value);
+            if (!HasSome) return;
+            action(v);
         }
 
         /// <summary>
@@ -177,7 +176,7 @@ namespace Katis.Data
         /// <returns>Value contained in Maybe or the default value.</returns>
         public T GetOrElse(T defaultValue)
         {
-            return (v == null) ? defaultValue : v.Value;
+            return (!HasSome) ? defaultValue : v;
         }
 
         /// <summary>
@@ -187,7 +186,7 @@ namespace Katis.Data
         /// <returns>Caller or the elseValue if caller is empty.</returns>
         public Maybe<T> OrElse(Maybe<T> elseValue)
         {
-            return (v == null) ? elseValue : new Maybe<T>(v.Value);
+            return (!HasSome) ? elseValue : new Maybe<T>(v);
         }
 
         /// <summary>
@@ -198,8 +197,8 @@ namespace Katis.Data
         /// <returns>Contained value.</returns>
         public T GetOrThrow<E>(E ex) where E : Exception
         {
-            if (v == null) throw ex;
-            else return v.Value;
+            if (!HasSome) throw ex;
+            else return v;
         }
 
         /// <summary>
@@ -210,8 +209,8 @@ namespace Katis.Data
         /// <returns>Contained value.</returns>
         public T GetOrThrow<E>(Func<E> newException) where E : Exception
         {
-            if (v == null) throw newException();
-            else return v.Value;
+            if (!HasSome) throw newException();
+            else return v;
         }
 
         /// <summary>
@@ -222,7 +221,7 @@ namespace Katis.Data
         /// <returns>Created value from one of the branches.</returns>
         public U Match<U>(Func<T, U> onSome, Func<U> onNone)
         {
-            return (v == null) ? onNone() : onSome(v.Value);
+            return (!HasSome) ? onNone() : onSome(v);
         }
 
         /// <summary>
@@ -232,8 +231,8 @@ namespace Katis.Data
         /// <param name="onNone">Function to call when the caller is empty.</param>
         public void MatchAct(Action<T> onSome, Action onNone)
         {
-            if (v == null) onNone();
-            else onSome(v.Value);
+            if (!HasSome) onNone();
+            else onSome(v);
         }
 
         /// <summary>
@@ -241,7 +240,7 @@ namespace Katis.Data
         /// </summary>
         public T[] ToArray()
         {
-            return (v == null) ? new T[]{} : new T[] { v.Value };
+            return (!HasSome) ? new T[]{} : new T[] { v };
         }
 
         /// <summary>
@@ -250,7 +249,7 @@ namespace Katis.Data
         public List<T> ToList()
         {
             var list = new List<T>();
-            if (v != null) list.Add(v.Value);
+            if (HasSome) list.Add(v);
             return list;
         }
 
@@ -259,24 +258,24 @@ namespace Katis.Data
         /// </summary>
         public IEnumerator<T> GetEnumerator()
         {
-            if (v == null)
+            if (!HasSome)
             {
                 yield break;
             }
             else
             {
-                yield return v.Value;
+                yield return v;
             }
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-            if (v == null)
+            if (!HasSome)
             {
                 yield break;
             }
             else
             {
-                yield return v.Value;
+                yield return v;
             }
         }
 
@@ -285,11 +284,11 @@ namespace Katis.Data
         /// </summary>
         public override string ToString()
         {
-            if (v == null)
+            if (!HasSome)
             {
                 return "None";
             } else {
-                return String.Format("Some({0})", v.Value.ToString());
+                return String.Format("Some({0})", v.ToString());
             }
         }
     }
