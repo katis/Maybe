@@ -95,6 +95,15 @@ namespace Katis.Data
         private readonly Ref<T> v;
 
         /// <summary>
+        /// Implicit conversion to a maybe value.
+        /// </summary>
+        /// <returns>Value in a maybe.</returns>
+        public static implicit operator Maybe<T>(T v)
+        {
+            return Maybe.Some(v);
+        }
+
+        /// <summary>
         /// Creates a new Maybe value containing the provided value, or an empty Maybe if
         /// the value is null.
         /// </summary>

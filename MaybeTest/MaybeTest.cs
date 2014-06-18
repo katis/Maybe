@@ -19,6 +19,20 @@ namespace Katis.Data.MaybeTest
         }
 
         [TestMethod]
+        public void TestImplicitConversion()
+        {
+            Maybe<string> some = "string";
+            var val = "";
+            some.ForEach(v => val = v);
+            Assert.AreEqual("string", val, "Implicit conversion to value should produce a value");
+
+            Maybe<string> none = null;
+            var val2 = "";
+            none.ForEach(v => val2 = v);
+            Assert.AreEqual("", val2, "Implicit conversion on null should produce an empty maybe");
+        }
+
+        [TestMethod]
         public void TestOrElse()
         {
             var greeting = "Hello ";
