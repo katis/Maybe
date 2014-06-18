@@ -5,12 +5,12 @@
     <version>$version$</version>
     <title>$title$</title>
     <authors>Joni Katajamäki</authors>
-    <owners>Joni Katajamäki</owners>
+    <owners>$author$</owners>
     <licenseUrl>https://github.com/katis/Maybe/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/katis/Maybe</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Implemented Maybe</releaseNotes>
+    <releaseNotes>Working Maybe type.</releaseNotes>
     <copyright>Copyright 2014</copyright>
     <tags>maybe option monad null</tags>
   </metadata>
