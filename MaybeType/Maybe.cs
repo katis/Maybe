@@ -45,8 +45,8 @@ namespace Katis.Data
         /// <returns>Value at index or empty.</returns>
         public static Maybe<T> GetMaybe<T>(this IList<T> list, int index)
         {
-            if (index < 0 || index > list.Count - 1) return Maybe.None<T>();
-            return Maybe.Some(list[index]);
+            if (index < list.Count && index >= 0) return Maybe.Some(list[index]);
+            return Maybe.None<T>();
         }
 
         /// <summary>
@@ -57,32 +57,35 @@ namespace Katis.Data
         /// <returns>Value at index or empty.</returns>
         public static Maybe<T> GetMaybe<T>(this T[] arr, int index)
         {
-            if (index < 0 || index > arr.Length - 1) return Maybe.None<T>();
-            return Maybe.Some(arr[index]);
+            if (index < arr.Length && index >= 0) return Maybe.Some(arr[index]);
+            return Maybe.None<T>();
         }
 
         /// <summary>
         /// GetMaybe is an extension method for dictionary returning the value at the provided index
         /// as a Maybe. An empty Maybe is returned if the index is not found in the dictionary.
         /// </summary>
-        /// <param name="index">Index of the value to retrieve.</param>
+        /// <param name="key">Index of the value to retrieve.</param>
         /// <returns>Value at index or empty.</returns>
-        public static Maybe<V> GetMaybe<K, V>(this IDictionary<K, V> map, K index)
+        public static Maybe<V> GetMaybe<K, V>(this IDictionary<K, V> dict, K key)
         {
-            if (map.ContainsKey(index)) return Maybe.Some(map[index]);
-            else return Maybe.None<V>();
+            var v = default(Maybe<V>);
+            v.has = dict.TryGetValue(key, out v.value);
+            return v;
         }
     }
 
     /// <summary>
     /// Maybe represents a potentially empty value.
-    /// It can also be thought as a container containing 0 or 1 values.
+    /// It can also be thought of as a container containing 0 or 1 values.
     /// </summary>
     /// <typeparam name="T">Type of the value it potentially contains.</typeparam>
     public struct Maybe<T> : IEnumerable<T>
     {
-        private readonly bool has;
-        private readonly T v;
+        internal bool has;
+        internal T value;
+
+        private T Value { get { return value; } }
 
         /// <summary>
         /// Implicit conversion to a maybe value.
@@ -101,13 +104,13 @@ namespace Katis.Data
         {
             if (value == null)
             {
-                this.v = default(T);
-                has = false;
+                this.value = default(T);
+                this.has = false;
             }
             else
             {
-                this.v = value;
-                has = true;
+                this.value = value;
+                this.has = true;
             }
         }
 
@@ -123,7 +126,7 @@ namespace Katis.Data
         /// <returns>Mapped over value in a Maybe, or empty.</returns>
         public Maybe<U> Map<U>(Func<T, U> converter)
         {
-            return (!HasSome) ? default(Maybe<U>) : new Maybe<U>(converter(v));
+            return (!HasSome) ? default(Maybe<U>) : new Maybe<U>(converter(Value));
         }
 
         /// <summary>
@@ -134,7 +137,7 @@ namespace Katis.Data
         /// <returns>New Maybe created by the converter, or empty.</returns>
         public Maybe<U> FlatMap<U>(Func<T, Maybe<U>> converter)
         {
-            return (!HasSome) ? default(Maybe<U>) : converter(v);
+            return (!HasSome) ? default(Maybe<U>) : converter(Value);
         }
 
         /// <summary>
@@ -156,7 +159,7 @@ namespace Katis.Data
         /// <returns>Filtered Maybe</returns>
         public Maybe<T> Filter(Predicate<T> pred)
         {
-            return (!HasSome || !pred(v)) ? default(Maybe<T>) : new Maybe<T>(v);
+            return (!HasSome || !pred(Value)) ? default(Maybe<T>) : new Maybe<T>(Value);
         }
 
         /// <summary>
@@ -166,7 +169,7 @@ namespace Katis.Data
         public void ForEach(Action<T> action)
         {
             if (!HasSome) return;
-            action(v);
+            action(Value);
         }
 
         /// <summary>
@@ -176,7 +179,7 @@ namespace Katis.Data
         /// <returns>Value contained in Maybe or the default value.</returns>
         public T GetOrElse(T defaultValue)
         {
-            return (!HasSome) ? defaultValue : v;
+            return (!HasSome) ? defaultValue : Value;
         }
 
         /// <summary>
@@ -186,7 +189,7 @@ namespace Katis.Data
         /// <returns>Caller or the elseValue if caller is empty.</returns>
         public Maybe<T> OrElse(Maybe<T> elseValue)
         {
-            return (!HasSome) ? elseValue : new Maybe<T>(v);
+            return (!HasSome) ? elseValue : new Maybe<T>(Value);
         }
 
         /// <summary>
@@ -198,7 +201,7 @@ namespace Katis.Data
         public T GetOrThrow<E>(E ex) where E : Exception
         {
             if (!HasSome) throw ex;
-            else return v;
+            else return Value;
         }
 
         /// <summary>
@@ -210,7 +213,7 @@ namespace Katis.Data
         public T GetOrThrow<E>(Func<E> newException) where E : Exception
         {
             if (!HasSome) throw newException();
-            else return v;
+            else return Value;
         }
 
         /// <summary>
@@ -221,7 +224,7 @@ namespace Katis.Data
         /// <returns>Created value from one of the branches.</returns>
         public U Match<U>(Func<T, U> onSome, Func<U> onNone)
         {
-            return (!HasSome) ? onNone() : onSome(v);
+            return (!HasSome) ? onNone() : onSome(Value);
         }
 
         /// <summary>
@@ -232,7 +235,7 @@ namespace Katis.Data
         public void MatchAct(Action<T> onSome, Action onNone)
         {
             if (!HasSome) onNone();
-            else onSome(v);
+            else onSome(Value);
         }
 
         /// <summary>
@@ -240,7 +243,7 @@ namespace Katis.Data
         /// </summary>
         public T[] ToArray()
         {
-            return (!HasSome) ? new T[]{} : new T[] { v };
+            return (!HasSome) ? new T[]{} : new T[] { Value };
         }
 
         /// <summary>
@@ -249,7 +252,7 @@ namespace Katis.Data
         public List<T> ToList()
         {
             var list = new List<T>();
-            if (HasSome) list.Add(v);
+            if (HasSome) list.Add(Value);
             return list;
         }
 
@@ -264,7 +267,7 @@ namespace Katis.Data
             }
             else
             {
-                yield return v;
+                yield return Value;
             }
         }
 
@@ -275,7 +278,7 @@ namespace Katis.Data
             }
             else
             {
-                yield return v;
+                yield return Value;
             }
         }
 
@@ -288,7 +291,7 @@ namespace Katis.Data
             {
                 return "None";
             } else {
-                return String.Format("Some({0})", v.ToString());
+                return String.Format("Some({0})", value.ToString());
             }
         }
     }
